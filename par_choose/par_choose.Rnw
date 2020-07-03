@@ -1,0 +1,123 @@
+\documentclass[11pt, letterpaper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[charter, cal=cmcal]{mathdesign}
+\usepackage{amsmath, amsthm, latexsym}
+%\usepackage[margin=1in]{geometry}
+
+\usepackage{booktabs}
+\usepackage{longtable}
+
+\begin{document} 
+\begin{flushright}\today\end{flushright}
+\begin{center}Tuning parameter choice\end{center}
+
+  This document describes the way in which an important tuning parameter was
+  chosen.  Data was generated from two normal distributions, labeled with a 0 or
+  a 1.  Distribution 0 had mean zero and distribution 1 had mean $\mu$ that was
+  allowed to shift, and both had scale equal to one.  For a pair of standard
+  normal distributions the true lower bound function has a convenient functional
+  form:
+  \begin{equation}
+    L_0(\delta) = \begin{cases} 0 & \delta \leq 0 \\ 2 \Phi(\delta / 2) - 1 & \delta > 0 \end{cases},
+  \end{equation}
+  where $\Phi$ is the standard normal CDF.  This was the null hypothesis, while
+  data was generated under both the null and locally location-shifted
+  alternative distributions.  Specifically, the location parameter of
+  distribution 1, $\mu$, was allowed to range from $-5/\sqrt{n}$ to
+  $5/\sqrt{n}$, with $n = n_0 + n_1$, where $n_0$ and $n_1$ are the sample sizes
+  from each distribution.  In simulations both samples had the same size, and
+  the sample sizes used were $n = 100, 500$ and $1000$.  Samples were generated
+  from these two distributions and the empirical lower bound was calculated:
+  \begin{equation*}
+    \mathbb{L}_n(\delta) = \max_y \mathbb{F}_{1n}(y) - \mathbb{F}_{0n}(y - \delta).
+  \end{equation*}
+  Then we subtract the null $L_0$ and scale the difference to produce an
+  empirical bound process.  
+
+  Because it is difficult to evaluate the empirical difference process at each
+  point where it changes, the empirical difference process
+  $\sqrt{n}(\mathbb{L}_n - L_0)$ was evaluated on a grid $\mathbb{X}$ of points
+  ranging from $\min_i X_{i1} - \max_j X_{j0}$ to $\max_i X_{i1} - \min_j
+  X_{j0}$ with a mesh diameter $0.05$.
+
+  For bootstrapping, we estimate the Hadamard directional derivative of the
+  pointwise supremum map, and this requires estimates of the marginal
+  $\epsilon$-maximizer sets that depend on a tuning parameter labeled $a_n$ in
+  the text.  We chose $a_n = K \log(\log(n)) / n$ and chose $K$ using the
+  results of these experiments.  To be explicit, we estimate a choice set for
+  the derivative using, for each $x \in \mathbb{X}$,
+  \begin{equation*}
+    U_{f_n}(x, a_n) = \left\{ u \in \mathbb{R} : \mathbb{F}_{1n}(u) -
+    \mathbb{F}_{0n}(u - x) \geq \max_u (\mathbb{F}_{1n}(u) - \mathbb{F}_{0n}(u -
+    x)) - a_n \right\}
+  \end{equation*}
+  Then bootstrap samples are used to construct the statistic, with $h_r^*(u, x) =
+  \mathbb{F}^*_{1n}(u) - \mathbb{F}^*_{0n}(u - x) - (\mathbb{F}_{1n}(u) -
+  \mathbb{F}_{0n}(u - x))$, for $r = 1, \ldots, R$,
+  \begin{equation*}
+    \lambda_{1r}^* = \hat{\lambda}_{1n}'(h_r^*) = \max \left\{ \sup_{(u, x) \in
+    U_{f_n}(X, a_n)} h_r^*(u, x), \sup_{x \in X} \inf_{u \in U_{f_n}(x, a_n)}
+    (-h_r^*(u, x)) \right\} 
+  \end{equation*}
+  or
+  \begin{equation*}
+    \lambda_{3r}^* = \hat{\lambda}_{3n}'(h_r^*) = \left( \int_X \left| \sup_{u
+    \in U_{f_n}(x, a_n)} h_r^*(u, x) \right|^p \text{d} m(x) \right)^{1/p}.
+  \end{equation*}
+
+  The results below show that the supremum norm statistics were very close to the desired 5\% rejection probability, while the empirical rejection probabilities of $L^2$ statistics were a little below the target.
+
+<<kload, include=FALSE, echo=FALSE>>=
+#options(kableExtra.latex.load_packages = FALSE)
+library(kableExtra)
+Kvec <- 1:4 / 10
+mu.local <- -5:5
+@
+
+In the below tables, the row labeled ``$0$'' corresponds to when data is really
+generated from two standard normal distributions, and is the case when $L_0$ is
+the correct centering for the sample analog.  All the non-zero rows are local
+alternatives $\mu / \sqrt{n}$, although they are labeled only for the value
+$\mu$ that was used.  From the results presented here, we decided to use $K =
+0.2$ in the main paper.
+
+<<size100table, echo=FALSE, results='asis'>>=
+load("pvalues_ssize100.rda")
+KS <- pval.list[[1]]
+CvM <- pval.list[[2]]
+dimnames(KS) <- dimnames(CvM) <- list(mu.local, Kvec)
+big <- cbind(KS, CvM)
+kable(big, "latex", longtable = TRUE, booktabs = TRUE, 
+      caption = "Rejection probabilities: sample size 100") %>%
+  add_header_above(c("$\\\\mu$" = 1, "KS" = 4, "CvM" = 4), escape = FALSE) %>%
+  row_spec(6, bold = TRUE)
+@
+
+<<size500table, echo=FALSE, results='asis'>>=
+load("pvalues_ssize500.rda")
+KS <- pval.list[[1]]
+CvM <- pval.list[[2]]
+dimnames(KS) <- dimnames(CvM) <- list(mu.local, Kvec)
+big <- cbind(KS, CvM)
+kable(big, "latex", longtable = TRUE, booktabs = TRUE, 
+      caption = "Rejection probabilities: sample size 500") %>%
+  add_header_above(c("$\\\\mu$" = 1, "KS" = 4, "CvM" = 4), escape = FALSE) %>%
+  row_spec(6, bold = TRUE)
+@
+
+<<size1000table, echo=FALSE, results='asis'>>=
+load("pvalues_ssize1000.rda")
+KS <- pval.list[[1]]
+CvM <- pval.list[[2]]
+dimnames(KS) <- dimnames(CvM) <- list(mu.local, Kvec)
+big <- cbind(KS, CvM)
+kable(big, "latex", longtable = TRUE, booktabs = TRUE, 
+      caption = "Rejection probabilities: sample size 1000") %>%
+  add_header_above(c("$\\\\mu$" = 1, "KS" = 4, "CvM" = 4), escape = FALSE) %>%
+  row_spec(6, bold = TRUE)
+@
+
+Setting $K = 0.2$ appeared to make most of the empirical rejection probabilities
+close to the target under the null hypothesis for the larger sample sizes.
+
+\end{document}
