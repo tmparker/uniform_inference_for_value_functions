@@ -16,6 +16,8 @@ is a file called `glue.R` which was used to paste all the results together at
 the end).  The resulting pvalue data is packaged in `.rda` files labeled by 
 sample size.
 
+### The experiment directory par_choose
+
 The directory `par_choose` is a little different --- it is like the two
 experiments but it contains its own `bound_localpower.cpp` file that was used in
 choosing the parameter "K" that appeared in the formula for $a_n$ in the main
