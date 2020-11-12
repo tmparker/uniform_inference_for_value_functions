@@ -14,9 +14,12 @@ random seeds and 10 repetitions each using the `rlecluyer`  R package (the SLURM
 shell script used to run the simulations is also included in each directory, as
 is a file called `glue.R` which was used to paste all the results together at
 the end).  The resulting pvalue data is packaged in `.rda` files labeled by 
-sample size.
+sample size.  The files `cband_powercurves.R` and `sd_powercurves.R` produce pdf 
+files of the same name.
 
-The directory `par_choose` is a little different --- it is like the two
+### The experiment directory par_choose
+
+The directory `par_choose` is a little different &mdash; it is like the two
 experiments but it contains its own `bound_localpower.cpp` file that was used in
 choosing the parameter "K" that appeared in the formula for $a_n$ in the main
 text.
@@ -34,4 +37,4 @@ that point (before the figures get plotted).
 ### Common files
 
 Everything depends on the file `bound.cpp`, which contains C++ code implementing
-our methods for the examples.
+the methods for the examples.
