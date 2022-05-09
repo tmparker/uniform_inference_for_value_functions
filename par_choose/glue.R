@@ -1,16 +1,17 @@
-# Glue things back together
+# Put things back together.
 
-N <- c(100, 500, 1000)
+N <- 40
+nparts <- 3
+avec <- 1:3# seq(0.5, 5, by = 0.5)
+bvec <- 1:4#seq(0.5, 5, by = 0.5)
 
-for (n in 1:length(N)) {
-  load(paste0("./parts/ssize", N[n], "part1.rda"))
-  # loads a list of two matrices giving numbers of rejections for the tests run 
-  # in that particular part.
-  rej.list <- anslist
-  for (k in 1:100) {
-    load(paste0("./parts/ssize", N[n], "part", k, ".rda"))
-    rej.list <- mapply("+", rej.list, anslist, SIMPLIFY = FALSE)
-    pval.list <- lapply(rej.list, function(x) x / 1000)
-    save(pval.list, file = paste0("pvalues_ssize", N[n], ".rda"))
-  }
+load(paste0("./parts/ss", N, "part1.rda"))
+pv_list <- pvals
+
+for (j in 2:nparts) {
+  load(paste0("./parts/ss", N, "part", j, ".rda"))
+  pv_list <- lapply(1:length(avec), function(i) rbind(pv_list[[i]], pvals[[i]]))
 }
+names(pv_list) <- paste("an =", avec)
+save(pv_list, file = paste0("par_ss", N, "_pvals.rda"))
+

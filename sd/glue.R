@@ -1,13 +1,18 @@
 # Put things back together.
 
-N <- c(100, 500, 1000)
-for (ss in 1:length(N)) {
-  load(paste0("./parts/size", N[ss], "run1.rda"))
-  pval.mat <- pval
-  for (run in 2:100) {
-    load(paste0("./parts/size", N[ss], "run", run, ".rda"))
-    pval.mat <- rbind(pval.mat, pval)
-  }
-  save(pval.mat, file = paste0("sd_sim_size", N[ss], "_pvals.rda"))
+N <- 1000
+nparts <- 500
+
+load(paste0("./parts/ss", N, "part001.rda"))
+pv_list <- pv
+nd <- length(pv) # number of alternative designs
+altnames <- names(pv)
+
+for (j in 2:nparts) {
+  jform <- sprintf("%03d", j)
+  load(paste0("./parts/ss", N, "part", jform, ".rda"))
+  pv_list <- lapply(1:nd, function(i) cbind(pv_list[[i]], pv[[i]]))
 }
+names(pv_list) <- altnames
+save(pv_list, file = paste0("sd_ss", N, "_pvals.rda"))
 
